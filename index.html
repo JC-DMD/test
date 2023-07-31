@@ -282,7 +282,7 @@ function displayCsvData(parsedData) {
     // Iterate over each row of data
     for (let i = 0; i < parsedData.length; i++) {
         // Get the value from the 'B' column for this row
-        const columnBValue = parsedData[i]['Description'];
+        const columnBValue = parsedData[i]['"Description"'];
 
         // Create a draggable cell with the column B value
         const cell = createDraggableCell(columnBValue, parsedData[i], i + 1);
