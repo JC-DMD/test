@@ -264,7 +264,6 @@ window.onresize = function(event) {
 };
 
 // Function to display CSV data
-// Function to display CSV data
 function displayCsvData(parsedData) {
     const columnA = document.getElementById('columnA');
     const columnB = document.getElementById('columnB');
@@ -280,14 +279,14 @@ function displayCsvData(parsedData) {
 
     // Iterate over each row of data
     for (let i = 0; i < parsedData.length; i++) {
-        // Get the value from the 'B' column for this row
-        const columnBValue = parsedData[i]['Description'];
+        // Get the value from the 'Description' column for this row
+        const columnBValue = parsedData[i]['"Description"'];
 
-        // Clean the columnBValue
-        const cleanedColumnBValue = cleanColumnBData([columnBValue])[0];
-
+	// Clean the value
+	columnBValue = cleanColumnBData([columnBValue])[0]; 
+	    
         // Create a draggable cell with the column B value
-        const cell = createDraggableCell(cleanedColumnBValue, parsedData[i], i + 1);
+        const cell = createDraggableCell(columnBValue, parsedData[i], i + 1);
 
         // Append the cell to column B
         columnB.appendChild(cell);
@@ -295,9 +294,6 @@ function displayCsvData(parsedData) {
 
     // Update the height of column A tiles to match column B tiles
     updateColumnAHeight();
-    
-    // Update column A
-    updateColumnA();
 }
 
 // Function to display column data
