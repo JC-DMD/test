@@ -124,7 +124,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.1/xlsx.full.min.js"></script>
 
 <script>
-    document.getElementById('fileInput').addEventListener('change', handleFile, false);
+document.getElementById('fileInput').addEventListener('change', handleFile, false);
+let currentData = [];
 window.addEventListener('message', function(event) {
     // Check the origin of the data!
 	if (!event.origin.startsWith("https://egprdapp.kcmogis.kc.lan")) {
@@ -173,7 +174,9 @@ function parseCsv(csvString) {
     });
     // Filter out rows where 'Description' is undefined or empty
     const filteredData = data.filter(row => row['"Description"'] !== undefined && row['"Description"'].trim() !== '');
-    
+
+    currentData = JSON.parse(JSON.stringify(parsedData));
+
     return filteredData;
 }
 
@@ -576,7 +579,7 @@ function drop(event) {
 
 		function discardChanges() {
 			// Restore original conditions
-			let originalConditions = getColumnBData();
+			let originalConditions = currentData();
 
 			// Clean the original conditions
 			let cleanedOriginalConditions = cleanColumnBData(originalConditions);
@@ -592,30 +595,34 @@ function drop(event) {
 		}
 
 		function keepChanges() {
-			// Switch back to view mode
-			toggleEditMode();
+ 		   // Switch back to view mode
+ 		   toggleEditMode();
 
-			// After a short delay, find all the text boxes marked for deletion and remove them
-			setTimeout(() => {
-				const markedForDeletion = document.querySelectorAll('[data-marked-for-deletion="true"]');
-				markedForDeletion.forEach(el => el.remove());
+ 		   // After a short delay, find all the text boxes marked for deletion and remove them
+ 		   setTimeout(() => {
+    		      const markedForDeletion = document.querySelectorAll('[data-marked-for-deletion="true"]');
+  		      markedForDeletion.forEach(el => el.remove());
+		
+ 		       // Get column B's content
+ 		       let columnBData = getColumnBData();
 
-				// Get column B's content
-				let columnBData = getColumnBData();
+ 		       // Clean column B's content
+ 		       let cleanedColumnBData = cleanColumnBData(columnBData);
 
-				// Clean column B's content
-				let cleanedColumnBData = cleanColumnBData(columnBData);
+		        // Update column B with cleaned content
+		        setColumnBData(cleanedColumnBData);
 
-				// Update column B with cleaned content
-				setColumnBData(cleanedColumnBData); 
+		        // Update the running copy of data
+		        currentData = JSON.parse(JSON.stringify(cleanedColumnBData));
 
-				// Update column A's content to match column B
-				updateColumnA();
+  		        // Update column A's content to match column B
+		        updateColumnA();
 
-				// Update the height of column A tiles to match column B tiles after removal
-				updateColumnAHeight();
-			}, 100);
+		        // Update the height of column A tiles to match column B tiles after removal
+		        updateColumnAHeight();
+		    }, 100);
 		}
+
 
 
         function getColumnBData() {
