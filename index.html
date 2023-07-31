@@ -150,7 +150,9 @@ function parseCsv(csvString) {
     
     // Get the headers from the first line
     const headers = lines[0].split(',');
-    
+
+    console.log("Headers: ", headers);  // Log the headers
+
     // Map over the remaining lines
     const data = lines.slice(1).map(line => {
         // Split the line into fields, respecting quotation marks
@@ -164,12 +166,15 @@ function parseCsv(csvString) {
         headers.forEach((header, i) => {
             obj[header] = cleanedFields[i];
         });
+
+        console.log(obj);  // Log the object for each line
         
         return obj;
     });
     
     return data;
 }
+
 
 function handleFile(event) {
     const file = event.target.files[0];
