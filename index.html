@@ -175,7 +175,7 @@ function parseCsv(csvString) {
     // Filter out rows where 'Description' is undefined or empty
     const filteredData = data.filter(row => row['"Description"'] !== undefined && row['"Description"'].trim() !== '');
 
-    currentData = JSON.parse(JSON.stringify(parsedData));
+    currentData = JSON.parse(JSON.stringify(data));
 
     return filteredData;
 }
