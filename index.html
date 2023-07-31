@@ -135,45 +135,63 @@ window.addEventListener('message', function(event) {
     // Everything is ok, we can process the data
     const data = event.data;
     
-    // Split the CSV string into lines
-    const lines = event.data.csvString.split('\n');
-
-    // Split each line into fields (split on comma)
-    const csvData = lines.map(line => line.split(','));
-
-    // Separate the header and the data
-    const header = csvData[0];
-    const rows = csvData.slice(1);  // Keep all the row data
-
-    // Convert each row to an object
-    const rowData = rows.map(row => {
-        let rowObject = {};
-        for(let i = 0; i < header.length; i++) {
-            rowObject[header[i]] = row[i];
-        }
-        return rowObject;
-    });
-
+    // Call the parseCsv function on the received CSV string
+    const parsedData = parseCsv(data.csvString);
+    
     // Filter out rows without a value in the second column
-    const filteredRowData = rowData.filter(row => row[header[1]]);
+    const filteredData = parsedData.filter(row => row['Description']);
 
-    displayRowData(filteredRowData);
+    displayRowData(filteredData);
 });
 
 function parseCsv(csvString) {
     // Split the string into lines
     const lines = csvString.split('\n');
     
-    // Map over the lines
-    const data = lines.map(line => {
+    // Get the headers from the first line
+    const headers = lines[0].split(',');
+    
+    // Map over the remaining lines
+    const data = lines.slice(1).map(line => {
         // Split the line into fields, respecting quotation marks
         const fields = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g);
         
         // Remove the quotation marks from the fields
-        return fields.map(field => field.startsWith('"') ? field.slice(1, -1).replace(/""/g, '"') : field);
+        const cleanedFields = fields.map(field => field.startsWith('"') ? field.slice(1, -1).replace(/""/g, '"') : field);
+        
+        // Combine the headers and fields into an object
+        let obj = {};
+        headers.forEach((header, i) => {
+            obj[header] = cleanedFields[i];
+        });
+        
+        return obj;
     });
     
     return data;
+}
+
+function displayRowData(filteredRowData) {
+    // Get the div where we will display the data
+    var div = document.getElementById('columnB');
+
+    // Clear the current content
+    div.innerHTML = '';
+
+    // Iterate over the filteredRowData array
+    filteredRowData.forEach(function(rowData) {
+        // Create a new paragraph
+        var p = document.createElement('p');
+
+        // Set the text of the paragraph to the value from column B
+        p.textContent = rowData['Description'];
+
+        // Store the rest of the rowData in a data attribute as a JSON string
+        p.dataset.rowData = JSON.stringify(rowData);
+
+        // Add the paragraph to the div
+        div.appendChild(p);
+    });
 }
 
 function handleFile(event) {
@@ -623,4 +641,3 @@ function drop(event) {
     </script>
 </body>
 </html>
-
