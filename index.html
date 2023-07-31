@@ -280,11 +280,11 @@ function displayCsvData(parsedData) {
     // Iterate over each row of data
     for (let i = 0; i < parsedData.length; i++) {
         // Get the value from the 'Description' column for this row
-        const columnBValue = parsedData[i]['"Description"'];
+        let columnBValue = parsedData[i]['"Description"'];
 
-	// Clean the value
-	columnBValue = cleanColumnBData([columnBValue])[0]; 
-	    
+        // Clean the value
+        columnBValue = cleanColumnBData([columnBValue])[0]; 
+
         // Create a draggable cell with the column B value
         const cell = createDraggableCell(columnBValue, parsedData[i], i + 1);
 
