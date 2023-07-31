@@ -148,8 +148,8 @@ function parseCsv(csvString) {
     // Split the string into lines
     const lines = csvString.split('\n');
     
-    // Get the headers from the first line and remove double quotes
-    const headers = lines[0].split(',').map(header => header.replace(/"/g, ''));
+    // Get the headers from the first line without removing double quotes
+    const headers = lines[0].split(',');
 
     console.log("Headers: ", headers);  // Log the headers
 
@@ -174,8 +174,6 @@ function parseCsv(csvString) {
     
     return data;
 }
-
-
 
 function handleFile(event) {
     const file = event.target.files[0];
