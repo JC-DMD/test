@@ -139,7 +139,7 @@ window.addEventListener('message', function(event) {
     const parsedData = parseCsv(data.csvString);
     
     // Filter out rows without a value in the second column
-    const filteredData = parsedData.filter(row => row['"Description"']);
+    const filteredData = parsedData.filter(row => row['Description']);
 
 	displayCsvData(parsedData);
 });
