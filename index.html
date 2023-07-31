@@ -282,6 +282,11 @@ function displayCsvData(parsedData) {
         // Get the value from the 'Description' column for this row
         let columnBValue = parsedData[i]['"Description"'];
 
+	// If the value is undefined, skip this cell
+        if (columnBValue === undefined) {
+        continue;
+        }
+	    
         // Clean the value
         columnBValue = cleanColumnBData([columnBValue])[0]; 
 
