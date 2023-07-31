@@ -127,7 +127,7 @@
     document.getElementById('fileInput').addEventListener('change', handleFile, false);
 window.addEventListener('message', function(event) {
     // Check the origin of the data!
-	if (!event.origin.startsWith("https://egprdapp.kcmogis.kc.lan/energov_prod")) {
+	if (!event.origin.startsWith(" https://egprdapp.kcmogis.kc.lan")) {
 		console.log('Wrong origin:', event.origin);
 		return;
 	}
