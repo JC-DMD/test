@@ -128,7 +128,7 @@
 window.addEventListener('message', function(event) {
     // Check the origin of the data!
 	if (!event.origin.startsWith("https://egprdapp.kcmogis.kc.lan/energov_prod")) {
-		console.log('Wrong origin');
+		console.log('Wrong origin:', event.origin);
 		return;
 	}
 
