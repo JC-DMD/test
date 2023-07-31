@@ -127,21 +127,41 @@
     document.getElementById('fileInput').addEventListener('change', handleFile, false);
 window.addEventListener('message', function(event) {
     // Check the origin of the data!
-	if (!event.origin.startsWith("https://egprdapp.kcmogis.kc.lan")) {
-		console.log('Wrong origin:', event.origin);
-		return;
-	}
+    if (!event.origin.startsWith("https://egprdapp.kcmogis.kc.lan")) {
+        console.log('Wrong origin:', event.origin);
+        return;
+    }
 
     // Everything is ok, we can process the data
     const data = event.data;
     
-    // Call the parseCsv function on the received CSV string
-    const parsedData = parseCsv(data.csvString);
-    
-    // Filter out rows without a value in the second column
-    const filteredData = parsedData.filter(row => row['Description']);
+    // Split the CSV string into lines
+    const lines = event.data.csvString.split('\n');
 
-    displayRowData(filteredData);
+    // Split each line into fields (split on comma)
+    const csvData = lines.map(line => line.split(','));
+
+    // Separate the header and the data
+    const header = csvData[0];
+    const rows = csvData.slice(1);  // Keep all the row data
+
+    // Convert each row to an object
+    const rowData = rows.map(row => {
+        let rowObject = {};
+        for(let i = 0; i < header.length; i++) {
+            rowObject[header[i]] = row[i];
+        }
+        return rowObject;
+    });
+
+    // Filter out rows without a value in the second column
+    const filteredRowData = rowData.filter(row => row[header[1]]);
+
+    // Parse the CSV string
+    const parsedCsvData = parseCsv(event.data.csvString);
+
+    // Display the parsed CSV data
+    displayRowData(parsedCsvData);
 });
 
 function parseCsv(csvString) {
