@@ -136,7 +136,7 @@ window.addEventListener('message', function(event) {
     const data = event.data;
     
     // Split the CSV string into lines
-    const lines = data.split('\n');
+    const lines = event.data.csvString.split('\n');
 
     // Split each line into fields (split on comma)
     const csvData = lines.map(line => line.split(','));
