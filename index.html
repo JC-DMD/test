@@ -179,12 +179,19 @@ function parseCsv(csvString) {
 
 function handleFile(event) {
     const file = event.target.files[0];
+    console.log(file.type);  // Log the MIME type of the file
     const reader = new FileReader();
 
     reader.onload = function (e) {
         const data = e.target.result;
 
-        if (file.type === "text/plain") {
+        if (file.type === "text/csv") {
+            // Parse CSV data
+            const parsedData = parseCsv(data);
+
+            // Display parsed CSV data
+            displayCsvData(parsedData);
+        } else if (file.type === "text/plain") {
             const columnBData = data.split('\n').filter(Boolean);
             const cleanedColumnBData = cleanColumnBData(columnBData);
 
@@ -203,12 +210,9 @@ function handleFile(event) {
         }
     };
 
-    if (file.type === "text/plain") {
-        reader.readAsText(file);
-    } else if (file.type.includes("sheet") || file.type.includes("excel")) {
-        reader.readAsBinaryString(file);
-    }
+    reader.readAsText(file);
 }
+
 
 function hasOddNumberOfBrackets(value) {
     const bracketsPairs = [['(', ')'], ['[', ']'], ['{', '}']];
