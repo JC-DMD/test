@@ -102,7 +102,7 @@
   </header>
 <a href="/Condition-Wizard/about/" target="_blank">About the Condition Wizard</a>
 <br><br>
-<div id="editControls">
+<div id="editControls" style="display: none;">
 	<button class="myButton" id="editButton" style="display: none;" >Edit Conditions</button>
     <div id="actionButtons">
         <button class="myButton" id="keepButton" style="display: none;">Keep Changes</button>
@@ -116,9 +116,9 @@
 	<div id="drop-indicator" class="drop-indicator"></div>
 </div>
 
-<button id="copyButton">Copy to Clipboard</button>
+<button id="copyButton" style="display: none;">Copy to Clipboard</button>
+<button id="exportButton" style="display: none;">Export as .txt</button>
 
-<button id="exportButton">Export as .txt</button>
 <br><br>
 <input type="file" id="fileInput" />	
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.1/xlsx.full.min.js"></script>
@@ -297,7 +297,10 @@ function displayCsvData(parsedData) {
         // Append the cell to column B
         columnB.appendChild(cell);
     }
-
+    document.getElementById('editControls').style.display = 'block';
+    document.getElementById('copyButton').style.display = 'block';
+    document.getElementById('exportButton').style.display = 'block';
+}
     // Update the height of column A tiles to match column B tiles
     updateColumnAHeight();
 }
