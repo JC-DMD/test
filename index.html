@@ -141,7 +141,7 @@ window.addEventListener('message', function(event) {
     // Filter out rows without a value in the second column
     const filteredData = parsedData.filter(row => row['Description']);
 
-	displayCsvData(rowData);
+	displayCsvData(parsedData);
 });
 
 function parseCsv(csvString) {
@@ -260,26 +260,26 @@ window.onresize = function(event) {
 };
 
 // Function to display CSV data
-function displayCsvData(rowData) {
+function displayCsvData(parsedData) {
     const columnA = document.getElementById('columnA');
     const columnB = document.getElementById('columnB');
 
     columnA.innerHTML = ''; // Clear previous data in column A
     columnB.innerHTML = ''; // Clear previous data in column B
 
-    // Create fixed cells in column A based on the number of rows in rowData
-    for (let i = 0; i < rowData.length; i++) {
+    // Create fixed cells in column A based on the number of rows in parsedData
+    for (let i = 0; i < parsedData.length; i++) {
         const fixedCell = createFixedCell(i + 1);
         columnA.appendChild(fixedCell);
     }
 
     // Iterate over each row of data
-    for (let i = 0; i < rowData.length; i++) {
+    for (let i = 0; i < parsedData.length; i++) {
         // Get the value from the 'B' column for this row
-        const columnBValue = rowData[i]['"B"'];
+        const columnBValue = parsedData[i]['"B"'];
 
         // Create a draggable cell with the column B value
-        const cell = createDraggableCell(columnBValue, rowData[i], i + 1);
+        const cell = createDraggableCell(columnBValue, parsedData[i], i + 1);
 
         // Append the cell to column B
         columnB.appendChild(cell);
