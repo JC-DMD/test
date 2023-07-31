@@ -127,11 +127,11 @@
     document.getElementById('fileInput').addEventListener('change', handleFile, false);
 window.addEventListener('message', function(event) {
     // Check the origin of the data!
-    if (event.origin !== "https://egprdapp.kcmogis.kc.lan/energov_prod") {
-        console.log('Wrong origin');
-        return;
-    }
-    
+	if (!event.origin.startsWith("https://egprdapp.kcmogis.kc.lan/energov_prod")) {
+		console.log('Wrong origin');
+		return;
+	}
+
     // Everything is ok, we can process the data
     const data = event.data;
     
@@ -623,3 +623,4 @@ function drop(event) {
     </script>
 </body>
 </html>
+
