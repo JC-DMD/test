@@ -578,15 +578,9 @@ function drop(event) {
 		}
 
 		function discardChanges() {
-			// Restore original conditions
-			let originalConditions = currentData();
-
-			// Clean the original conditions
-			let cleanedOriginalConditions = cleanColumnBData(originalConditions);
-
-			// Update column B with cleaned original conditions
-			setColumnBData(cleanedOriginalConditions);
-
+   			// Restore original conditions
+  			displayCsvData(currentData);
+    
 			// Update the height of column A tiles to match column B tiles after removal
 			updateColumnAHeight();
 			
