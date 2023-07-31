@@ -171,8 +171,10 @@ function parseCsv(csvString) {
         
         return obj;
     });
+    // Filter out rows where 'Description' is undefined or empty
+    const filteredData = data.filter(row => row['"Description"'] !== undefined && row['"Description"'].trim() !== '');
     
-    return data;
+    return filteredData;
 }
 
 function handleFile(event) {
@@ -281,11 +283,6 @@ function displayCsvData(parsedData) {
     for (let i = 0; i < parsedData.length; i++) {
         // Get the value from the 'Description' column for this row
         let columnBValue = parsedData[i]['"Description"'];
-
-	// If the value is undefined, skip this cell
-        if (columnBValue === undefined) {
-        continue;
-        }
 	    
         // Clean the value
         columnBValue = cleanColumnBData([columnBValue])[0]; 
