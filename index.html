@@ -640,25 +640,13 @@ function keepChanges() {
 }
 
 function getColumnBData() {
-    // Get all conditions
-    const conditions = document.querySelectorAll('#columnB > div');
+	// Get all cells in column B
+	const cells = Array.from(document.querySelectorAll('#columnB div'));
 
-    // Map conditions to an array of cell objects
-    let columnBData = Array.from(conditions).map((condition) => {
-        // Create a copy of the cell object
-        let cellObj = JSON.parse(condition.dataset.cellObject);
+	// Extract and parse the cell objects from the data attributes
+	const cellObjects = cells.map(cell => JSON.parse(cell.getAttribute('data')));
 
-        // Check if there's an input box in the cell
-        let inputBox = condition.querySelector('input');
-        if (inputBox) {
-            // Update the Description property with the value of the input box
-            cellObj['Description'] = inputBox.value;
-        }
-
-        return cellObj;
-    });
-
-    return columnBData;
+	return cellObjects;
 }
 
 function setColumnBData(data) {
