@@ -578,7 +578,8 @@ function drop(event) {
 		}
 
 		function discardChanges() {
-   			// Restore original conditions
+   			console.log('Current data:', currentData);
+			// Restore original conditions
   			displayCsvData(currentData);
     
 			// Update the height of column A tiles to match column B tiles after removal
