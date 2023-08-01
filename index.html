@@ -610,20 +610,25 @@ function drop(event) {
 			const markedForDeletion = document.querySelectorAll('[data-marked-for-deletion="true"]');
 			markedForDeletion.forEach(el => el.remove());
 
-			// Get column B's cell objects
+			// Get column B's content
 			let columnBData = getColumnBData();
 
-			// Clean column B's text content and update the cell objects in currentData
-			columnBData.forEach((cellObject, index) => {
-				const cleanedText = cleanColumnBData([cellObject.Description])[0];
-				cellObject.Description = cleanedText;
-				if (currentData[index]) {
-					currentData[index].Description = cleanedText;
-				}
+			// Extract descriptions from cell objects
+			const descriptions = columnBData.map(cellObject => cellObject['"Description"']);
+
+			// Clean column B's content
+			let cleanedColumnBData = cleanColumnBData(descriptions);
+
+			// Replace descriptions in cell objects with cleaned descriptions
+			const updatedCellObjects = columnBData.map((cellObject, index) => {
+				return { ...cellObject, '"Description"': cleanedColumnBData[index] };
 			});
 
-			// Update column B with cleaned cell objects
-			setColumnBData(columnBData);
+			// Update column B with updated cell objects
+			setColumnBData(updatedCellObjects);
+
+			// Update the running copy of data
+			currentData = JSON.parse(JSON.stringify(updatedCellObjects));
 
 			// Update column A's content to match column B
 			updateColumnA();
