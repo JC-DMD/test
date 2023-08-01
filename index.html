@@ -618,8 +618,6 @@ function drop(event) {
 		    }, 100);
 		}
 
-
-
         function getColumnBData() {
             // Get all conditions
             const conditions = document.querySelectorAll('#columnB div');
@@ -630,15 +628,20 @@ function drop(event) {
 
         function setColumnBData(data) {
             const columnB = document.getElementById('columnB');
-
-            // Clear existing conditions
-            columnB.innerHTML = '';
-
-            // Loop through data and add each condition back to the column
-            data.forEach((text, index) => {
-                const cell = createDraggableCell(text, index + 1);
-                columnB.appendChild(cell);
-            });
+        
+            // Get all the existing cells in column B
+            const cells = columnB.children;
+        
+            // Loop through the cells and update their content
+            for (let i = 0; i < cells.length; i++) {
+                let cell = cells[i];
+        
+                // Get the new text for this cell
+                let newText = data[i];
+        
+                // Update the cell's content
+                cell.textContent = newText;
+            }
 
             // Update the height of column A tiles to match column B tiles
             updateColumnAHeight();
