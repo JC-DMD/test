@@ -613,6 +613,8 @@ function drop(event) {
 			// Get column B's content
 			let columnBData = getColumnBData();
 
+			console.log("columnBData before cleaning:", columnBData); // Debugging log
+
 			// Extract descriptions from cell objects, or return an empty string if a cell object doesn't have a "Description" property
 			const descriptions = columnBData.map(cellObject => cellObject['"Description"'] || "");
 
@@ -624,11 +626,15 @@ function drop(event) {
 				return { ...cellObject, '"Description"': cleanedColumnBData[index] };
 			});
 
+			console.log("updatedCellObjects after cleaning:", updatedCellObjects); // Debugging log
+
 			// Update column B with updated cell objects
 			setColumnBData(updatedCellObjects);
 
 			// Update the running copy of data
 			currentData = JSON.parse(JSON.stringify(updatedCellObjects));
+
+			console.log("currentData after updating:", currentData); // Debugging log
 
 			// Update column A's content to match column B
 			updateColumnA();
