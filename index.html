@@ -521,17 +521,19 @@ let originalConditions = [];
 // Track if we are in edit mode
 let isEditMode = false;
 
-const editButton = document.getElementById('editButton');
-const discardButton = document.getElementById('discardButton');
-const keepButton = document.getElementById('keepButton');
+document.addEventListener('DOMContentLoaded', (event) => {
+    const editButton = document.getElementById('editButton');
+    const discardButton = document.getElementById('discardButton');
+    const keepButton = document.getElementById('keepButton');
 
-// Add event listeners to the new buttons
-editButton.addEventListener('click', toggleEditMode);
-discardButton.addEventListener('click', discardChanges);
-keepButton.addEventListener('click', keepChanges);
+    // Add event listeners to the new buttons
+    editButton.addEventListener('click', toggleEditMode);
+    discardButton.addEventListener('click', discardChanges);
+    keepButton.addEventListener('click', keepChanges);
 
-// Show the edit button initially
-editButton.style.display = 'block';
+    // Show the edit button initially
+    editButton.style.display = 'block';
+});
 
 // Set initial editable state for all conditions
 updateEditableState();
