@@ -613,8 +613,8 @@ function drop(event) {
 			// Get column B's content
 			let columnBData = getColumnBData();
 
-			// Extract descriptions from cell objects
-			const descriptions = columnBData.map(cellObject => cellObject['"Description"']);
+			// Extract descriptions from cell objects, or return an empty string if a cell object doesn't have a "Description" property
+			const descriptions = columnBData.map(cellObject => cellObject['"Description"'] || "");
 
 			// Clean column B's content
 			let cleanedColumnBData = cleanColumnBData(descriptions);
