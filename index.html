@@ -590,41 +590,44 @@ function drop(event) {
 		}
 
 		function keepChanges() {
- 		   // Switch back to view mode
- 		   toggleEditMode();
+			// Switch back to view mode
+			toggleEditMode();
 
- 		   // After a short delay, find all the text boxes marked for deletion and remove them
- 		   setTimeout(() => {
-    		      const markedForDeletion = document.querySelectorAll('[data-marked-for-deletion="true"]');
-  		      markedForDeletion.forEach(el => el.remove());
-		
- 		       // Get column B's content
- 		       let columnBData = getColumnBData();
+			// After a short delay, find all the text boxes marked for deletion and remove them
+			setTimeout(() => {
+				const markedForDeletion = document.querySelectorAll('[data-marked-for-deletion="true"]');
+				markedForDeletion.forEach(el => el.remove());
 
- 		       // Clean column B's content
- 		       let cleanedColumnBData = cleanColumnBData(columnBData);
+				// Get column B's content (returns NodeList of div elements)
+				let columnBData = getColumnBData();
 
-		        // Update column B with cleaned content
-		        setColumnBData(cleanedColumnBData);
+				// Loop over each div and clean its text content
+				columnBData.forEach((div, index) => {
+					// Clean the div's text content
+					let cleanedText = cleanColumnBData([div.textContent])[0];
 
-		        // Update the running copy of data
-		        currentData = JSON.parse(JSON.stringify(cleanedColumnBData));
+					// Update the div's text content with cleaned text
+					div.textContent = cleanedText;
 
-  		        // Update column A's content to match column B
-		        updateColumnA();
+					// Update the running copy of data
+					currentData[index]['"Description"'] = cleanedText;
+				});
 
-		        // Update the height of column A tiles to match column B tiles after removal
-		        updateColumnAHeight();
-		    }, 100);
+				// Update column A's content to match column B
+				updateColumnA();
+
+				// Update the height of column A tiles to match column B tiles after removal
+				updateColumnAHeight();
+			}, 100);
 		}
 
-        function getColumnBData() {
-            // Get all conditions
-            const conditions = document.querySelectorAll('#columnB div');
+	function getColumnBData() {
+		// Get all conditions
+		const conditions = document.querySelectorAll('#columnB div');
 
-            // Map conditions to an array of their text content
-            return Array.from(conditions).map((condition) => condition.textContent);
-        }
+		// Return the NodeList directly
+		return conditions;
+	}
 
         function setColumnBData(data) {
             const columnB = document.getElementById('columnB');
