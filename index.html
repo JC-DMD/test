@@ -340,20 +340,32 @@ function createFixedCell(value) {
 	return div;
 }
 
-// Function to create draggable cell in column B
-function createDraggableCell(value, rowData, tileId) {
-	const div = document.createElement('div');
-	div.innerHTML = value; // Use innerHTML instead of textContent
-	div.classList.add('column-tile');
-	div.setAttribute('draggable', true);
-	div.setAttribute('data-tile-id', tileId); // Assign a unique identifier to the tile
-	div.dataset.rowData = JSON.stringify(rowData);  // Store the entire row data
-	div.addEventListener('dragstart', dragStart);
-	div.addEventListener('dragend', dragEnd); // Add dragend event listener
-	div.addEventListener('dragover', dragOver); // Add dragover event listener
-	div.addEventListener('dragleave', dragLeave); // Add dragleave event listener
-	return div;
+function createDraggableCell(columnBValue, cellObject, order) {
+    // Create a new div element
+    const newDiv = document.createElement('div');
+
+    // Set the HTML content of the div
+    newDiv.innerHTML = columnBValue;
+
+    // Add the draggable attribute and set it to true
+    newDiv.setAttribute('draggable', true);
+
+    // Add the class 'draggable'
+    newDiv.classList.add('draggable');
+
+    // Add the 'data' attribute and set it to the JSON string of the cell object
+    newDiv.setAttribute('data', JSON.stringify(cellObject));
+
+    // Add the 'order' attribute and set it to the order parameter
+    newDiv.setAttribute('order', order);
+
+    // Add event listeners for drag events
+    newDiv.addEventListener('dragstart', dragStart);
+    newDiv.addEventListener('dragend', dragEnd);
+
+    return newDiv;
 }
+
 
 // Function to handle drag start
 let draggedElement;
@@ -625,37 +637,27 @@ function drop(event) {
 		// Get all cells in column B
 		const cells = Array.from(document.querySelectorAll('#columnB div'));
 
-		// Map the NodeList to an array of cell objects
-		const cellObjects = cells.map((cell) => {
-			return {
-				Description: cell.innerHTML,
-				// other properties here...
-			};
-		});
+		// Extract and parse the cell objects from the data attributes
+		const cellObjects = cells.map(cell => JSON.parse(cell.getAttribute('data')));
 
 		return cellObjects;
 	}
 
-        function setColumnBData(data) {
-            const columnB = document.getElementById('columnB');
-        
-            // Get all the existing cells in column B
-            const cells = columnB.children;
-        
-            // Loop through the cells and update their content
-            for (let i = 0; i < cells.length; i++) {
-                let cell = cells[i];
-        
-                // Get the new text for this cell
-                let newText = data[i];
-        
-                // Update the cell's content
-                cell.textContent = newText;
-            }
+	function setColumnBData(data) {
+		const columnB = document.getElementById('columnB');
 
-            // Update the height of column A tiles to match column B tiles
-            updateColumnAHeight();
-        }
+		// Clear existing conditions
+		columnB.innerHTML = '';
+
+		// Loop through data and add each condition back to the column
+		data.forEach((cellObject, index) => {
+			const cell = createDraggableCell(cellObject['"Description"'], cellObject, index + 1);
+			columnB.appendChild(cell);
+		});
+
+		// Update the height of column A tiles to match column B tiles
+		updateColumnAHeight();
+	}
 
 	document.getElementById('copyButton').addEventListener('click', copyToClipboard);
 
