@@ -533,100 +533,107 @@ function drop(event) {
         // Set initial editable state for all conditions
         updateEditableState();
 
-		function toggleEditMode() {
-			// Switch mode
-			isEditMode = !isEditMode;
+	function toggleEditMode() {
+		// Switch mode
+		isEditMode = !isEditMode;
 
-			// Store original conditions
-			if (isEditMode) {
-				originalConditions = getColumnBData();
-			}
-
-			// Show / hide buttons
-			editButton.style.display = isEditMode ? 'none' : 'block';
-			discardButton.style.display = isEditMode ? 'block' : 'none';
-			keepButton.style.display = isEditMode ? 'block' : 'none';
-
-			// Set editable state for all conditions
-			updateEditableState();
-
-			// Toggle 'edit-mode' class (style) 
-			document.body.classList.toggle('edit-mode');
+		// Store original conditions
+		if (isEditMode) {
+			originalConditions = getColumnBData();
 		}
 
+		// Show / hide buttons
+		editButton.style.display = isEditMode ? 'none' : 'block';
+		discardButton.style.display = isEditMode ? 'block' : 'none';
+		keepButton.style.display = isEditMode ? 'block' : 'none';
 
-		function updateEditableState() {
-			// Get all conditions
-			const conditions = document.querySelectorAll('#columnB div');
+		// Set editable state for all conditions
+		updateEditableState();
 
-			// Loop through each condition and set its editable state
-			conditions.forEach((condition) => {
-				// Set contentEditable attribute based on edit mode
-				condition.contentEditable = isEditMode;
+		// Toggle 'edit-mode' class (style) 
+		document.body.classList.toggle('edit-mode');
+	}
 
-				// Toggle .edit-mode class based on edit mode
-				condition.classList.toggle('edit-mode', isEditMode);
 
-				// Disable / enable drag functionality based on edit mode
-				condition.draggable = !isEditMode;
-
-				// If we are not in edit mode and the content is empty, mark for deletion
-				if (!isEditMode && condition.textContent.trim() === '') {
-					condition.dataset.markedForDeletion = 'true';
-				}
-			});
-		}
-
-		function discardChanges() {
-   			console.log('Current data:', currentData);
-			// Restore original conditions
-  			displayCsvData(currentData);
-    
-			// Update the height of column A tiles to match column B tiles after removal
-			updateColumnAHeight();
-			
-			// Switch back to view mode
-			toggleEditMode();
-		}
-
-		function keepChanges() {
-			// Switch back to view mode
-			toggleEditMode();
-
-			// After a short delay, find all the text boxes marked for deletion and remove them
-			setTimeout(() => {
-				const markedForDeletion = document.querySelectorAll('[data-marked-for-deletion="true"]');
-				markedForDeletion.forEach(el => el.remove());
-
-				// Get column B's content (returns NodeList of div elements)
-				let columnBData = getColumnBData();
-
-				// Loop over each div and clean its text content
-				columnBData.forEach((div, index) => {
-					// Clean the div's text content
-					let cleanedText = cleanColumnBData([div.textContent])[0];
-
-					// Update the div's text content with cleaned text
-					div.textContent = cleanedText;
-
-					// Update the running copy of data
-					currentData[index]['"Description"'] = cleanedText;
-				});
-
-				// Update column A's content to match column B
-				updateColumnA();
-
-				// Update the height of column A tiles to match column B tiles after removal
-				updateColumnAHeight();
-			}, 100);
-		}
-
-	function getColumnBData() {
+	function updateEditableState() {
 		// Get all conditions
 		const conditions = document.querySelectorAll('#columnB div');
 
-		// Return the NodeList directly
-		return conditions;
+		// Loop through each condition and set its editable state
+		conditions.forEach((condition) => {
+			// Set contentEditable attribute based on edit mode
+			condition.contentEditable = isEditMode;
+
+			// Toggle .edit-mode class based on edit mode
+			condition.classList.toggle('edit-mode', isEditMode);
+
+			// Disable / enable drag functionality based on edit mode
+			condition.draggable = !isEditMode;
+
+			// If we are not in edit mode and the content is empty, mark for deletion
+			if (!isEditMode && condition.textContent.trim() === '') {
+				condition.dataset.markedForDeletion = 'true';
+			}
+		});
+	}
+
+	function discardChanges() {
+		console.log('Current data:', currentData);
+		// Restore original conditions
+		displayCsvData(currentData);
+
+		// Update the height of column A tiles to match column B tiles after removal
+		updateColumnAHeight();
+		
+		// Switch back to view mode
+		toggleEditMode();
+	}
+
+	function keepChanges() {
+		// Switch back to view mode
+		toggleEditMode();
+
+		// After a short delay, find all the text boxes marked for deletion and remove them
+		setTimeout(() => {
+			const markedForDeletion = document.querySelectorAll('[data-marked-for-deletion="true"]');
+			markedForDeletion.forEach(el => el.remove());
+
+			// Get column B's cell objects
+			let columnBData = getColumnBData();
+
+			// Clean column B's text content and update the cell objects in currentData
+			columnBData.forEach((cellObject, index) => {
+				const cleanedText = cleanColumnBData([cellObject.Description])[0];
+				cellObject.Description = cleanedText;
+				if (currentData[index]) {
+					currentData[index].Description = cleanedText;
+				}
+			});
+
+			// Update column B with cleaned cell objects
+			setColumnBData(columnBData);
+
+			// Update column A's content to match column B
+			updateColumnA();
+
+			// Update the height of column A tiles to match column B tiles after removal
+			updateColumnAHeight();
+		}, 100);
+	}
+
+	function getColumnBData() {
+		// Get all cells in column B
+		const cells = Array.from(document.querySelectorAll('#columnB div'));
+
+		// Map the NodeList to an array of cell objects
+		const cellObjects = cells.map((cell) => {
+			return {
+				Description: cell.innerHTML,
+				// other properties here...
+			};
+		});
+
+		return cellObjects;
 	}
 
         function setColumnBData(data) {
