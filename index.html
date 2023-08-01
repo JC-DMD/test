@@ -458,239 +458,230 @@ function drop(event) {
     document.getElementById('drop-indicator').style.display = 'none';
 }
 
-    // Remove the original item from columnB after the drop is completed
-    if (draggedElement) {
-        draggedElement.remove();
-        draggedElement = null;
+// Function to update the height of column A tiles to match column B tiles
+function updateColumnAHeight() {
+	const columnATiles = document.querySelectorAll('#columnA div');
+	const columnBTiles = document.querySelectorAll('#columnB div');
 
-        // Update the height of column A tiles to match column B tiles
-        updateColumnAHeight();
-    }
+	for (let i = 0; i < columnATiles.length; i++) {
+		const heightB = columnBTiles[i].getBoundingClientRect().height;
+        	columnATiles[i].style.height = heightB + 'px';
+	}
+}
 
-    // Function to update the height of column A tiles to match column B tiles
-    function updateColumnAHeight() {
-        const columnATiles = document.querySelectorAll('#columnA div');
-        const columnBTiles = document.querySelectorAll('#columnB div');
+// Call the function to update the height initially
+updateColumnAHeight();
 
-        for (let i = 0; i < columnATiles.length; i++) {
-            const heightB = columnBTiles[i].getBoundingClientRect().height;
-            columnATiles[i].style.height = heightB + 'px';
-        }
-    }
+function exportAsTxt() {
+	// Get the input file element
+	var fileInput = document.getElementById('fileInput');
 
-    // Call the function to update the height initially
-    updateColumnAHeight();
+	// Get the name of the input file
+	var inputFilename = fileInput.files[0].name;
 
-	function exportAsTxt() {
-		// Get the input file element
-		var fileInput = document.getElementById('fileInput');
+	// Remove the file extension from the input filename
+	var baseFilename = inputFilename.split('.').slice(0, -1).join('.');
 
-		// Get the name of the input file
-		var inputFilename = fileInput.files[0].name;
+	// Append "_wiz" to the base filename
+	var outputFilename = baseFilename + '_wiz.txt';
 
-		// Remove the file extension from the input filename
-		var baseFilename = inputFilename.split('.').slice(0, -1).join('.');
+	const columnAData = document.querySelectorAll('#columnA div');
+	const columnBData = document.querySelectorAll('#columnB div');
 
-		// Append "_wiz" to the base filename
-		var outputFilename = baseFilename + '_wiz.txt';
+	let txtContent = '';
 
-		const columnAData = document.querySelectorAll('#columnA div');
-		const columnBData = document.querySelectorAll('#columnB div');
+	for (let i = 0; i < columnAData.length; i++) {
+		const columnANumber = columnAData[i].textContent;
+		const columnBText = columnBData[i].textContent;
 
-		let txtContent = '';
-
-		for (let i = 0; i < columnAData.length; i++) {
-			const columnANumber = columnAData[i].textContent;
-			const columnBText = columnBData[i].textContent;
-
-			txtContent += columnANumber + ' ' + columnBText + '\n';
-		}
-
-		const blob = new Blob([txtContent], { type: 'text/plain' });
-		const url = URL.createObjectURL(blob);
-
-		const a = document.createElement('a');
-		a.href = url;
-
-		// Use outputFilename as the filename for the exported file
-		a.download = outputFilename;
-		
-		a.click();
-
-		// Clean up
-		URL.revokeObjectURL(url);
+		txtContent += columnANumber + ' ' + columnBText + '\n';
 	}
 
-        // Add event listener to the export button
-        document.getElementById('exportButton').addEventListener('click', exportAsTxt);
+	const blob = new Blob([txtContent], { type: 'text/plain' });
+	const url = URL.createObjectURL(blob);
 
-        // Store original conditions for restoring on discard
-        let originalConditions = [];
+	const a = document.createElement('a');
+	a.href = url;
 
-        // Track if we are in edit mode
-        let isEditMode = false;
+	// Use outputFilename as the filename for the exported file
+	a.download = outputFilename;
+	
+	a.click();
 
-        const editButton = document.getElementById('editButton');
-        const discardButton = document.getElementById('discardButton');
-        const keepButton = document.getElementById('keepButton');
+	// Clean up
+	URL.revokeObjectURL(url);
+}
 
-        // Add event listeners to the new buttons
-        editButton.addEventListener('click', toggleEditMode);
-        discardButton.addEventListener('click', discardChanges);
-        keepButton.addEventListener('click', keepChanges);
+// Add event listener to the export button
+document.getElementById('exportButton').addEventListener('click', exportAsTxt);
 
-        // Show the edit button initially
-        editButton.style.display = 'block';
+// Store original conditions for restoring on discard
+let originalConditions = [];
 
-        // Set initial editable state for all conditions
-        updateEditableState();
+// Track if we are in edit mode
+let isEditMode = false;
 
-	function toggleEditMode() {
-		// Switch mode
-		isEditMode = !isEditMode;
+const editButton = document.getElementById('editButton');
+const discardButton = document.getElementById('discardButton');
+const keepButton = document.getElementById('keepButton');
 
-		// Store original conditions
-		if (isEditMode) {
-			originalConditions = getColumnBData();
-		}
+// Add event listeners to the new buttons
+editButton.addEventListener('click', toggleEditMode);
+discardButton.addEventListener('click', discardChanges);
+keepButton.addEventListener('click', keepChanges);
 
-		// Show / hide buttons
-		editButton.style.display = isEditMode ? 'none' : 'block';
-		discardButton.style.display = isEditMode ? 'block' : 'none';
-		keepButton.style.display = isEditMode ? 'block' : 'none';
+// Show the edit button initially
+editButton.style.display = 'block';
 
-		// Set editable state for all conditions
-		updateEditableState();
+// Set initial editable state for all conditions
+updateEditableState();
 
-		// Toggle 'edit-mode' class (style) 
-		document.body.classList.toggle('edit-mode');
+function toggleEditMode() {
+	// Switch mode
+	isEditMode = !isEditMode;
+
+	// Store original conditions
+	if (isEditMode) {
+		originalConditions = getColumnBData();
 	}
 
+	// Show / hide buttons
+	editButton.style.display = isEditMode ? 'none' : 'block';
+	discardButton.style.display = isEditMode ? 'block' : 'none';
+	keepButton.style.display = isEditMode ? 'block' : 'none';
 
-	function updateEditableState() {
-		// Get all conditions
-		const conditions = document.querySelectorAll('#columnB div');
+	// Set editable state for all conditions
+	updateEditableState();
 
-		// Loop through each condition and set its editable state
-		conditions.forEach((condition) => {
-			// Set contentEditable attribute based on edit mode
-			condition.contentEditable = isEditMode;
+	// Toggle 'edit-mode' class (style) 
+	document.body.classList.toggle('edit-mode');
+}
 
-			// Toggle .edit-mode class based on edit mode
-			condition.classList.toggle('edit-mode', isEditMode);
 
-			// Disable / enable drag functionality based on edit mode
-			condition.draggable = !isEditMode;
+function updateEditableState() {
+	// Get all conditions
+	const conditions = document.querySelectorAll('#columnB div');
 
-			// If we are not in edit mode and the content is empty, mark for deletion
-			if (!isEditMode && condition.textContent.trim() === '') {
-				condition.dataset.markedForDeletion = 'true';
-			}
+	// Loop through each condition and set its editable state
+	conditions.forEach((condition) => {
+		// Set contentEditable attribute based on edit mode
+		condition.contentEditable = isEditMode;
+
+		// Toggle .edit-mode class based on edit mode
+		condition.classList.toggle('edit-mode', isEditMode);
+
+		// Disable / enable drag functionality based on edit mode
+		condition.draggable = !isEditMode;
+
+		// If we are not in edit mode and the content is empty, mark for deletion
+		if (!isEditMode && condition.textContent.trim() === '') {
+			condition.dataset.markedForDeletion = 'true';
+		}
+	});
+}
+
+function discardChanges() {
+	console.log('Current data:', currentData);
+	// Restore original conditions
+	displayCsvData(currentData);
+
+	// Update the height of column A tiles to match column B tiles after removal
+	updateColumnAHeight();
+	
+	// Switch back to view mode
+	toggleEditMode();
+}
+
+function keepChanges() {
+	console.log('keepChanges function called');  // Debugging log
+	
+	// Switch back to view mode
+	toggleEditMode();
+
+	// After a short delay, find all the text boxes marked for deletion and remove them
+	setTimeout(() => {
+		const markedForDeletion = document.querySelectorAll('[data-marked-for-deletion="true"]');
+		markedForDeletion.forEach(el => el.remove());
+
+		// Get column B's content
+		let columnBData = getColumnBData();
+
+		console.log("columnBData before cleaning:", columnBData); // Debugging log
+
+		// Extract descriptions from cell objects, or return an empty string if a cell object doesn't have a "Description" property
+		const descriptions = columnBData.map(cellObject => cellObject['"Description"'] || "");
+
+		// Clean column B's content
+		let cleanedColumnBData = cleanColumnBData(descriptions);
+
+		// Replace descriptions in cell objects with cleaned descriptions
+		const updatedCellObjects = columnBData.map((cellObject, index) => {
+			return { ...cellObject, '"Description"': cleanedColumnBData[index] };
 		});
-	}
 
-	function discardChanges() {
-		console.log('Current data:', currentData);
-		// Restore original conditions
-		displayCsvData(currentData);
+		console.log("updatedCellObjects after cleaning:", updatedCellObjects); // Debugging log
+
+		// Update column B with updated cell objects
+		setColumnBData(updatedCellObjects);
+
+		// Update the running copy of data
+		currentData = JSON.parse(JSON.stringify(updatedCellObjects));
+
+		console.log("currentData after updating:", currentData); // Debugging log
+
+		// Update column A's content to match column B
+		updateColumnA();
 
 		// Update the height of column A tiles to match column B tiles after removal
 		updateColumnAHeight();
-		
-		// Switch back to view mode
-		toggleEditMode();
+	}, 100);
+}
+
+function getColumnBData() {
+	// Get all cells in column B
+	const cells = Array.from(document.querySelectorAll('#columnB div'));
+
+	// Extract and parse the cell objects from the data attributes
+	const cellObjects = cells.map(cell => JSON.parse(cell.getAttribute('data')));
+
+	return cellObjects;
+}
+
+function setColumnBData(data) {
+	const columnB = document.getElementById('columnB');
+
+	// Clear existing conditions
+	columnB.innerHTML = '';
+
+	// Loop through data and add each condition back to the column
+	data.forEach((cellObject, index) => {
+		const cell = createDraggableCell(cellObject['"Description"'], cellObject, index + 1);
+		columnB.appendChild(cell);
+	});
+
+	// Update the height of column A tiles to match column B tiles
+	updateColumnAHeight();
+}
+
+document.getElementById('copyButton').addEventListener('click', copyToClipboard);
+
+function copyToClipboard() {
+	const columnAData = document.querySelectorAll('#columnA div');
+	const columnBData = document.querySelectorAll('#columnB div');
+
+	let textContent = '';
+
+	for (let i = 0; i < columnAData.length; i++) {
+		const columnANumber = columnAData[i].textContent;
+		const columnBText = columnBData[i].textContent;
+
+		textContent += columnANumber + ' ' + columnBText + '\n';
 	}
 
-	function keepChanges() {
-		console.log('keepChanges function called');  // Debugging log
-		
-		// Switch back to view mode
-		toggleEditMode();
-
-		// After a short delay, find all the text boxes marked for deletion and remove them
-		setTimeout(() => {
-			const markedForDeletion = document.querySelectorAll('[data-marked-for-deletion="true"]');
-			markedForDeletion.forEach(el => el.remove());
-
-			// Get column B's content
-			let columnBData = getColumnBData();
-
-			console.log("columnBData before cleaning:", columnBData); // Debugging log
-
-			// Extract descriptions from cell objects, or return an empty string if a cell object doesn't have a "Description" property
-			const descriptions = columnBData.map(cellObject => cellObject['"Description"'] || "");
-
-			// Clean column B's content
-			let cleanedColumnBData = cleanColumnBData(descriptions);
-
-			// Replace descriptions in cell objects with cleaned descriptions
-			const updatedCellObjects = columnBData.map((cellObject, index) => {
-				return { ...cellObject, '"Description"': cleanedColumnBData[index] };
-			});
-
-			console.log("updatedCellObjects after cleaning:", updatedCellObjects); // Debugging log
-
-			// Update column B with updated cell objects
-			setColumnBData(updatedCellObjects);
-
-			// Update the running copy of data
-			currentData = JSON.parse(JSON.stringify(updatedCellObjects));
-
-			console.log("currentData after updating:", currentData); // Debugging log
-
-			// Update column A's content to match column B
-			updateColumnA();
-
-			// Update the height of column A tiles to match column B tiles after removal
-			updateColumnAHeight();
-		}, 100);
-	}
-
-	function getColumnBData() {
-		// Get all cells in column B
-		const cells = Array.from(document.querySelectorAll('#columnB div'));
-
-		// Extract and parse the cell objects from the data attributes
-		const cellObjects = cells.map(cell => JSON.parse(cell.getAttribute('data')));
-
-		return cellObjects;
-	}
-
-	function setColumnBData(data) {
-		const columnB = document.getElementById('columnB');
-
-		// Clear existing conditions
-		columnB.innerHTML = '';
-
-		// Loop through data and add each condition back to the column
-		data.forEach((cellObject, index) => {
-			const cell = createDraggableCell(cellObject['"Description"'], cellObject, index + 1);
-			columnB.appendChild(cell);
-		});
-
-		// Update the height of column A tiles to match column B tiles
-		updateColumnAHeight();
-	}
-
-	document.getElementById('copyButton').addEventListener('click', copyToClipboard);
-
-	function copyToClipboard() {
-		const columnAData = document.querySelectorAll('#columnA div');
-		const columnBData = document.querySelectorAll('#columnB div');
-
-		let textContent = '';
-
-		for (let i = 0; i < columnAData.length; i++) {
-			const columnANumber = columnAData[i].textContent;
-			const columnBText = columnBData[i].textContent;
-
-			textContent += columnANumber + ' ' + columnBText + '\n';
-		}
-
-		navigator.clipboard.writeText(textContent)
-			.then(() => { alert('Content copied to clipboard.'); })
-			.catch((error) => { alert('Error copying text: ', error); });
-	}
-    </script>
+	navigator.clipboard.writeText(textContent)
+		.then(() => { alert('Content copied to clipboard.'); })
+		.catch((error) => { alert('Error copying text: ', error); });
+}
+</script>
 </body>
 </html>
