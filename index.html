@@ -116,8 +116,7 @@
 	<div id="drop-indicator" class="drop-indicator"></div>
 </div>
 
-<button id="copyButton" style="display: none;">Copy to Clipboard</button>
-<button id="exportButton" style="display: none;">Export as .txt</button>
+<button id="exportButton" style="display: none;">Export Data</button>
 
 <br><br>
 <input type="file" id="fileInput" />	
@@ -126,6 +125,7 @@
 <script>
 document.getElementById('fileInput').addEventListener('change', handleFile, false);
 let currentData = [];
+let jsonFileName;
 window.addEventListener('message', function(event) {
     // Check the origin of the data!
 	if (!event.origin.startsWith("https://egprdapp.kcmogis.kc.lan")) {
@@ -136,6 +136,10 @@ window.addEventListener('message', function(event) {
     // Everything is ok, we can process the data
     const data = event.data;
     
+	const fileName = data.filename;  // Get the name of the file from the message
+	const fileNameWithoutExtension = fileName.split('_')[0];
+    jsonFileName = fileNameWithoutExtension + '_wiz.json';  // Create the name for the JSON file
+	
     // Call the parseCsv function on the received CSV string
     const parsedData = parseCsv(data.csvString);
     
@@ -182,7 +186,9 @@ function parseCsv(csvString) {
 
 function handleFile(event) {
     const file = event.target.files[0];
-    console.log(file.type);  // Log the MIME type of the file
+    const fileName = file.name;  // Get the name of the uploaded file
+	const fileNameWithoutExtension = fileName.split('_')[0];
+    jsonFileName = fileNameWithoutExtension + '_wiz.json';  // Create the name for the JSON file
     const reader = new FileReader();
 
     reader.onload = function (e) {
@@ -228,7 +234,10 @@ function hasOddNumberOfBrackets(value) {
 
 function cleanColumnBData(columnBData) {
     const cleanedColumnBData = columnBData.map(value => {
-        // Highlight the text within brackets
+        // Remove any existing <mark> and </mark> tags
+        value = value.replace(/<mark>/g, '').replace(/<\/mark>/g, '');
+		
+		// Highlight the text within brackets
         value = value.replace(/\[(.*?)\]/gs, '<mark>[$1]</mark>');
 
         // Highlight the underscore characters
@@ -301,8 +310,8 @@ function displayCsvData(parsedData) {
         columnB.appendChild(cell);
     }
     document.getElementById('editControls').style.display = 'block';
-    document.getElementById('copyButton').style.display = 'block';
     document.getElementById('exportButton').style.display = 'block';
+	
 	
     // Update the height of column A tiles to match column B tiles
     updateColumnAHeight();
@@ -348,10 +357,10 @@ function createDraggableCell(columnBValue, cellObject, order) {
     newDiv.innerHTML = columnBValue;
 
     // Add the draggable attribute and set it to true
-    newDiv.setAttribute('draggable', true);
+    ///newDiv.setAttribute('draggable', true); COMMENTED OUT 
 
     // Add the class 'draggable'
-    newDiv.classList.add('draggable');
+    ///newDiv.classList.add('draggable'); COMMENTED OUT 
 
     // Add the 'data' attribute and set it to the JSON string of the cell object
     newDiv.setAttribute('data', JSON.stringify(cellObject));
@@ -362,6 +371,12 @@ function createDraggableCell(columnBValue, cellObject, order) {
     // Add event listeners for drag events
     newDiv.addEventListener('dragstart', dragStart);
     newDiv.addEventListener('dragend', dragEnd);
+
+	newDiv.addEventListener('keydown', function(e) {
+		if (e.key === 'Enter' && !e.shiftKey) {
+			e.preventDefault();
+		}
+	});
 
     return newDiv;
 }
@@ -472,48 +487,34 @@ function updateColumnAHeight() {
 // Call the function to update the height initially
 updateColumnAHeight();
 
-function exportAsTxt() {
-	// Get the input file element
-	var fileInput = document.getElementById('fileInput');
+function exportData() {
+    // Get the data from column B
+    const data = getColumnBData();
 
-	// Get the name of the input file
-	var inputFilename = fileInput.files[0].name;
+    // Convert the data to a JSON string
+    const json = JSON.stringify(data, null, 2);
 
-	// Remove the file extension from the input filename
-	var baseFilename = inputFilename.split('.').slice(0, -1).join('.');
+    // Create a Blob object from the JSON string
+    const blob = new Blob([json], { type: 'application/json' });
 
-	// Append "_wiz" to the base filename
-	var outputFilename = baseFilename + '_wiz.txt';
+    // Create a URL for the Blob object
+    const url = URL.createObjectURL(blob);
 
-	const columnAData = document.querySelectorAll('#columnA div');
-	const columnBData = document.querySelectorAll('#columnB div');
+    // Create a temporary anchor element
+    const a = document.createElement('a');
 
-	let txtContent = '';
+    // Set the href of the anchor to the Blob URL
+    a.href = url;
 
-	for (let i = 0; i < columnAData.length; i++) {
-		const columnANumber = columnAData[i].textContent;
-		const columnBText = columnBData[i].textContent;
+    // Set the download attribute to specify the file name
+    a.download = jsonFileName;
 
-		txtContent += columnANumber + ' ' + columnBText + '\n';
-	}
-
-	const blob = new Blob([txtContent], { type: 'text/plain' });
-	const url = URL.createObjectURL(blob);
-
-	const a = document.createElement('a');
-	a.href = url;
-
-	// Use outputFilename as the filename for the exported file
-	a.download = outputFilename;
-	
-	a.click();
-
-	// Clean up
-	URL.revokeObjectURL(url);
+    // Trigger a click on the anchor to start the download
+    a.click();
 }
 
 // Add event listener to the export button
-document.getElementById('exportButton').addEventListener('click', exportAsTxt);
+document.getElementById('exportButton').addEventListener('click', exportData);
 
 // Store original conditions for restoring on discard
 let originalConditions = [];
@@ -538,27 +539,46 @@ document.addEventListener('DOMContentLoaded', (event) => {
 // Set initial editable state for all conditions
 updateEditableState();
 
+// Store the observers in a global variable so we can disconnect them later
+let observers = [];
+
 function toggleEditMode() {
-	// Switch mode
-	isEditMode = !isEditMode;
+    // Switch mode
+    isEditMode = !isEditMode;
 
-	// Store original conditions
-	if (isEditMode) {
-		originalConditions = getColumnBData();
-	}
+    // Store original conditions
+    if (isEditMode) {
+        originalConditions = getColumnBData();
 
-	// Show / hide buttons
-	editButton.style.display = isEditMode ? 'none' : 'block';
-	discardButton.style.display = isEditMode ? 'block' : 'none';
-	keepButton.style.display = isEditMode ? 'block' : 'none';
+        // Set up ResizeObservers for each cell in column B
+        const cells = document.querySelectorAll('#columnB div');
+        cells.forEach(cell => {
+            let observer = new ResizeObserver(entries => {
+                for (let entry of entries) {
+                    console.log(`Size of ${entry.target} changed to ${entry.contentRect.width}px x ${entry.contentRect.height}px`);
+                    updateColumnAHeight();  // Call the function to update the height of column A
+                }
+            });
+            observer.observe(cell);
+            observers.push(observer);  // Save the observer so we can disconnect it later
+        });
+    } else {
+        // Disconnect all the observers when exiting the edit mode
+        observers.forEach(observer => observer.disconnect());
+        observers = [];
+    }
 
-	// Set editable state for all conditions
-	updateEditableState();
+    // Show / hide buttons
+    editButton.style.display = isEditMode ? 'none' : 'block';
+    discardButton.style.display = isEditMode ? 'block' : 'none';
+    keepButton.style.display = isEditMode ? 'block' : 'none';
 
-	// Toggle 'edit-mode' class (style) 
-	document.body.classList.toggle('edit-mode');
+    // Set editable state for all conditions
+    updateEditableState();
+
+    // Toggle 'edit-mode' class (style) 
+    document.body.classList.toggle('edit-mode');
 }
-
 
 function updateEditableState() {
 	// Get all conditions
@@ -640,13 +660,22 @@ function keepChanges() {
 }
 
 function getColumnBData() {
-	// Get all cells in column B
-	const cells = Array.from(document.querySelectorAll('#columnB div'));
+    // Get all cells in column B
+    const cells = Array.from(document.querySelectorAll('#columnB div'));
 
-	// Extract and parse the cell objects from the data attributes
-	const cellObjects = cells.map(cell => JSON.parse(cell.getAttribute('data')));
+    // Extract and parse the cell objects from the data attributes, and update the Description field with the current text content
+    const cellObjects = cells.map(cell => {
+        const cellObject = JSON.parse(cell.getAttribute('data'));
+        let description = cell.innerHTML;  // Use innerHTML to get the content with HTML tags
 
-	return cellObjects;
+        // Preserve <br> tags, but remove all other tags
+        description = description.replace(/<\/?[^b][^r][^>]*>/g, '');
+
+        cellObject['"Description"'] = description;
+        return cellObject;
+    });
+
+    return cellObjects;
 }
 
 function setColumnBData(data) {
@@ -665,25 +694,6 @@ function setColumnBData(data) {
 	updateColumnAHeight();
 }
 
-document.getElementById('copyButton').addEventListener('click', copyToClipboard);
-
-function copyToClipboard() {
-	const columnAData = document.querySelectorAll('#columnA div');
-	const columnBData = document.querySelectorAll('#columnB div');
-
-	let textContent = '';
-
-	for (let i = 0; i < columnAData.length; i++) {
-		const columnANumber = columnAData[i].textContent;
-		const columnBText = columnBData[i].textContent;
-
-		textContent += columnANumber + ' ' + columnBText + '\n';
-	}
-
-	navigator.clipboard.writeText(textContent)
-		.then(() => { alert('Content copied to clipboard.'); })
-		.catch((error) => { alert('Error copying text: ', error); });
-}
 </script>
 </body>
 </html>
