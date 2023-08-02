@@ -69,10 +69,10 @@
 			display: flex;
 		}
 
-        /* Add a custom class for the highlighted number */
-        .highlighted {
-            font-weight: bold;
-        }
+        	/* Add a custom class for the highlighted number */
+        	.highlighted {
+            	font-weight: bold;
+        	}
 
 		.drop-indicator {
 			position: absolute;
@@ -82,17 +82,20 @@
 			transition: top 0.2s, left 0.2s, width 0.2s;
 		}
 
-        /* Add a custom class for the export button */
-        #exportButton {
-            margin-top: 10px;
-            cursor: pointer;
-        }
+        	/* Add a custom class for the export button */
+        	#exportButton {
+            	margin-top: 10px;
+           	cursor: pointer;
+        	}
+
+		#container div {
+			transition: background-color 0.35s, color 0.1s;
+		}
 
 		.edit-mode #container div {
 			background-color: #5d6d7e;
 			color: #fefefe;
 		}
-
 
     </style>
 </head>
@@ -380,7 +383,6 @@ function createDraggableCell(columnBValue, cellObject, order) {
 
     return newDiv;
 }
-
 
 // Function to handle drag start
 let draggedElement;
