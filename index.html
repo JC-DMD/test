@@ -45,7 +45,7 @@
 		}
 
 		#columnA {
-			flex-grow: 1;
+			flex-grow: 0;
 			display: flex;
 			flex-direction: column;
 		}
@@ -217,7 +217,8 @@ function parseCsv(csvString) {
 
 function handleFile(event) {
     const file = event.target.files[0];
-    const fileName = file.name;  // Get the name of the uploaded file
+    console.log(file.type);
+	const fileName = file.name;  // Get the name of the uploaded file
 	const fileNameWithoutExtension = fileName.split('_')[0];
     jsonFileName = fileNameWithoutExtension + '_wiz.json';  // Create the name for the JSON file
     const reader = new FileReader();
@@ -487,8 +488,21 @@ function exportData() {
     // Get the data from column B
     const data = getColumnBData();
 
-    // Convert the data to a JSON string
-    const json = JSON.stringify(data, null, 2);
+    // Process the data to convert HTML to plain text
+    const cleanedData = data.map(item => {
+        let description = item['"Description"'];
+        // Create a temporary div element
+        const div = document.createElement('div');
+        // Set the innerHTML to the description
+        div.innerHTML = description;
+        // Retrieve the textContent, which will be the plain text
+        description = div.textContent || div.innerText || '';
+        item['"Description"'] = description;
+        return item;
+    });
+
+    // Convert the cleaned data to a JSON string
+    const json = JSON.stringify(cleanedData, null, 2);
 
     // Create a Blob object from the JSON string
     const blob = new Blob([json], { type: 'application/json' });
