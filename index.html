@@ -16,16 +16,18 @@
 			margin: 0;
 		}
 		
-		h2 {
-			text-align: center;
-			font-size: 11pt;
+		h2#subheader {
+			position: absolute; /* Positions the subheader independently */
+			left: 50%; /* Aligns the left edge of the subheader to the center of the container */
+			transform: translateX(-50%); /* Shifts the subheader to the left by half of its width */
+			font-size: 15pt;
 			padding: 0px;
 			margin: 0;
 			margin-bottom: 4px;
-			}
+		}
 		
 		body {
-			font-family: Verdana, sans-serif;
+		font-family: Verdana, sans-serif;
 		}
 
 		mark {
@@ -77,9 +79,9 @@
 			display: flex;
 		}
 
-        	
+        	/* Add a custom class for the highlighted number */
         	.highlighted {
-            		font-weight: bold;
+            	font-weight: bold;
         	}
 
 		.drop-indicator {
@@ -90,16 +92,23 @@
 			transition: top 0.2s, left 0.2s, width 0.2s;
 		}
 
-        	
+        	/* Add a custom class for the export button */
         	#exportButton {
-            		margin-top: 10px;
-           		cursor: pointer;
+            	margin-top: 10px;
+           	cursor: pointer;
         	}
 
 		#container div {
 			transition: background-color 0.35s, color 0.1s;
 		}
 
+		#controlsContainer {
+			display: flex;
+			justify-content: space-between; /* Optional: This will spread the items across the full width */
+			align-items: center; /* Optional: This will vertically center the items */
+			position: relative; /* Allows positioning of the subheader */
+		}
+		
 		.edit-mode #container div {
 			background-color: #5d6d7e;
 			color: #fefefe;
@@ -113,15 +122,18 @@
   </header>
 <a href="/Condition-Wizard/about/" target="_blank">About the Condition Wizard</a>
 <br><br>
-<div id="editControls" style="display: none;">
-	<button class="myButton" id="editButton" style="display: none;" >Edit Conditions</button>
-    <div id="actionButtons">
-        <button class="myButton" id="keepButton" style="display: none;">Keep Changes</button>
-        <button class="myButton" id="discardButton" style="display: none;">Discard Changes</button>
+
+<div id="controlsContainer">
+    <div id="editControls" style="display: none;">
+        <button class="myButton" id="editButton" style="display: none;">Edit Conditions</button>
+        <div id="actionButtons">
+            <button class="myButton" id="keepButton" style="display: none;">Keep Changes</button>
+            <button class="myButton" id="discardButton" style="display: none;">Discard Changes</button>
+        </div>
     </div>
+    <h2 id="subheader" style="display: none;">No file selected</h2>
 </div>
 
-<h2 id="subheader" style="display: none;">No file selected</h2>
 
 <div id="container">
 	<div id="columnA"></div>
