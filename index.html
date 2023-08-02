@@ -16,8 +16,16 @@
 			margin: 0;
 		}
 		
+		h2 {
+			text-align: center;
+			font-size: 11pt;
+			padding: 0px;
+			margin: 0;
+			margin-bottom: 4px;
+			}
+		
 		body {
-		font-family: Verdana, sans-serif;
+			font-family: Verdana, sans-serif;
 		}
 
 		mark {
@@ -69,9 +77,9 @@
 			display: flex;
 		}
 
-        	/* Add a custom class for the highlighted number */
+        	
         	.highlighted {
-            	font-weight: bold;
+            		font-weight: bold;
         	}
 
 		.drop-indicator {
@@ -82,10 +90,10 @@
 			transition: top 0.2s, left 0.2s, width 0.2s;
 		}
 
-        	/* Add a custom class for the export button */
+        	
         	#exportButton {
-            	margin-top: 10px;
-           	cursor: pointer;
+            		margin-top: 10px;
+           		cursor: pointer;
         	}
 
 		#container div {
@@ -112,6 +120,8 @@
         <button class="myButton" id="discardButton" style="display: none;">Discard Changes</button>
     </div>
 </div>
+
+<h2 id="subheader" style="display: none;">No file selected</h2>
 
 <div id="container">
 	<div id="columnA"></div>
@@ -142,6 +152,12 @@ window.addEventListener('message', function(event) {
 	const fileName = data.filename;  // Get the name of the file from the message
 	const fileNameWithoutExtension = fileName.split('_')[0];
     jsonFileName = fileNameWithoutExtension + '_wiz.json';  // Create the name for the JSON file
+	
+	// Update the subheader content with the selected file name without extension
+    document.getElementById('subheader').textContent = fileNameWithoutExtension;
+
+    // Display the subheader
+    document.getElementById('subheader').style.display = 'block';
 	
     // Call the parseCsv function on the received CSV string
     const parsedData = parseCsv(data.csvString);
@@ -194,6 +210,12 @@ function handleFile(event) {
     jsonFileName = fileNameWithoutExtension + '_wiz.json';  // Create the name for the JSON file
     const reader = new FileReader();
 
+    // Update the subheader content with the selected file name without extension
+    document.getElementById('subheader').textContent = fileNameWithoutExtension;
+
+    // Display the subheader
+    document.getElementById('subheader').style.display = 'block';
+	
     reader.onload = function (e) {
         const data = e.target.result;
 
@@ -204,28 +226,11 @@ function handleFile(event) {
 
             // Display parsed CSV data
             displayCsvData(parsedData);
-        } else if (file.type === "text/plain") {
-            const columnBData = data.split('\n').filter(Boolean);
-            const cleanedColumnBData = cleanColumnBData(columnBData);
-
-            displayColumnData(columnBData, cleanedColumnBData);
-        } else if (file.type.includes("sheet") || file.type.includes("excel")) {
-            const workbook = XLSX.read(data, { type: 'binary' });
-            const firstSheetName = workbook.SheetNames[0];
-            const worksheet = workbook.Sheets[firstSheetName];
-            const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-
-            // Only consider data from row 5 and onwards
-            const columnBData = jsonData.slice(4).map(row => row[1]).filter(Boolean);
-            const cleanedColumnBData = cleanColumnBData(columnBData);
-
-            displayColumnData(columnBData, cleanedColumnBData);
-        }
+        } 
     };
 
     reader.readAsText(file);
 }
-
 
 function hasOddNumberOfBrackets(value) {
     const bracketsPairs = [['(', ')'], ['[', ']'], ['{', '}']];
@@ -317,30 +322,6 @@ function displayCsvData(parsedData) {
     document.getElementById('exportButton').style.display = 'block';
 	
 	
-    // Update the height of column A tiles to match column B tiles
-    updateColumnAHeight();
-}
-
-// Function to display column data
-function displayColumnData(columnBData, cleanedColumnBData, rowData) {
-    const columnA = document.getElementById('columnA');
-    const columnB = document.getElementById('columnB');
-
-    columnA.innerHTML = ''; // Clear previous data in column A
-    columnB.innerHTML = ''; // Clear previous data in column B
-
-    // Create fixed cells in column A based on the number of rows in cleanedColumnBData
-    for (let i = 0; i < cleanedColumnBData.length; i++) {
-        const fixedCell = createFixedCell(i + 1);
-        columnA.appendChild(fixedCell);
-    }
-
-    // Skip the first element (header) of cleanedColumnBData
-    for (let i = 0; i < cleanedColumnBData.length; i++) {
-        const cell = createDraggableCell(cleanedColumnBData[i], rowData[i], i + 1);
-        columnB.appendChild(cell);
-    }
-
     // Update the height of column A tiles to match column B tiles
     updateColumnAHeight();
 }
