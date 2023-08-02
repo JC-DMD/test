@@ -197,7 +197,8 @@ function handleFile(event) {
     reader.onload = function (e) {
         const data = e.target.result;
 
-        if (file.type === "text/csv") {
+        // Check if the file extension is .csv
+        if (fileName.endsWith('.csv')) {
             // Parse CSV data
             const parsedData = parseCsv(data);
 
